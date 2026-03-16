@@ -1,25 +1,38 @@
 import { useState } from "react";
 import "./App.css";
+import Login from "./components/Login";
 
 function App() {
+    const [currentUser, setCurrentUser] = useState(null);
     const [messages, setMessages] = useState([
         { text: "Hola 👋", sender: "other" },
         { text: "I am Alpharius", sender: "other" }
     ]);
-
     const [input, setInput] = useState("");
+
+    const handleLogin = (username) => {
+        setCurrentUser(username);
+    };
 
     const sendMessage = () => {
         if (input.trim() === "") return;
-
-        const newMessage = { text: input, sender: "me" };
-        setMessages([...messages, newMessage]);
+        setMessages([...messages, { text: input, sender: "me" }]);
         setInput("");
     };
 
+    const handleKeyDown = (e) => {
+        if (e.key === "Enter") sendMessage();
+    };
+
+    if (!currentUser) {
+        return <Login onLogin={handleLogin} />;
+    }
+
     return (
         <div className="chat-container">
-            <div className="chat-header">Mi Chat</div>
+            <div className="chat-header">
+                💬 Mi Chat — <span style={{ fontWeight: "normal", opacity: 0.8 }}>{currentUser}</span>
+            </div>
 
             <div className="chat-messages">
                 {messages.map((msg, index) => (
@@ -36,7 +49,8 @@ function App() {
                 <input
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
-                    placeholder="Mesage..."
+                    onKeyDown={handleKeyDown}
+                    placeholder="Message..."
                 />
                 <button onClick={sendMessage}>Send</button>
             </div>
