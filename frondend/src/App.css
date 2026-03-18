@@ -145,3 +145,31 @@ body {
 .login-button:active {
   transform: scale(0.98);
 }
+
+.status-badge {
+  margin-left: 12px;
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  border-radius: 99px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+.status-badge.conectado { background: #d4edda; color: #155724; }
+.status-badge.desconectado { background: #f8d7da; color: #721c24; }
+.status-badge.sala\ llena { background: #fff3cd; color: #856404; }
+
+.message.system {
+  text-align: center;
+  color: #888;
+  font-size: 0.8rem;
+  font-style: italic;
+  margin: 4px 0;
+}
+
+.message-sender {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #4f8ef7;
+  margin-bottom: 2px;
+}

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import "./App.css";
 import Login from "./components/Login";
 
@@ -9,14 +9,43 @@ function App() {
         { text: "I am Alpharius", sender: "other" }
     ]);
     const [input, setInput] = useState("");
+    const [status, setStatus] = useState("disconnected");
+    const ws = useRef(null);
+
+    useEffect(() => {
+        if (!currentUser) return;
+
+        const socket = new WebSocket(`ws://localhost:8000/ws/${currentUser}`);
+        ws.current = socket;
+
+        socket.onopen = () => setStatus("conectado");
+
+        socket.onclose = (e) => {
+            if (e.code === 1008) {
+                setStatus("sala llena");
+                setCurrentUser(null);
+                alert("La sala ya está llena (máximo 2 usuarios).");
+            } else {
+                setStatus("desconectado");
+            }
+        };
+
+        socket.onmessage = (event) => {
+            const msg = JSON.parse(event.data);
+            setMessages((prev) => [...prev, msg]);
+        };
+
+        return () => socket.close();
+    }, [currentUser]);
 
     const handleLogin = (username) => {
         setCurrentUser(username);
     };
 
     const sendMessage = () => {
-        if (input.trim() === "") return;
-        setMessages([...messages, { text: input, sender: "me" }]);
+        if (input.trim() === "" || ws.current?.readyState !== WebSocket.OPEN) return;
+        setMessages((prev) => [...prev, { type: "message", sender: currentUser, text: input }]);
+        ws.current.send(JSON.stringify({ text: input }));
         setInput("");
     };
 
@@ -38,7 +67,7 @@ function App() {
                 {messages.map((msg, index) => (
                     <div
                         key={index}
-                        className={msg.sender === "me" ? "message me" : "message other"}
+                        className={msg.sender === currentUser ? "message me" : "message other"}
                     >
                         {msg.text}
                     </div>
