@@ -32,7 +32,11 @@ function App() {
 
         socket.onmessage = (event) => {
             const msg = JSON.parse(event.data);
-            setMessages((prev) => [...prev, msg]);
+                if (msg.type === "history") {
+                    setMessages(msg.messages);
+                } else {
+                    setMessages((prev) => [...prev, msg]);
+    }
         };
 
         return () => socket.close();
